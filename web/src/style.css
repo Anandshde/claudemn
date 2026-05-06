@@ -1,0 +1,236 @@
+@import "tailwindcss";
+
+/* Treat html[data-theme="dark"] as the source of the `dark:` variant. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Self-hosted/locally installed Styrene B; falls back to Inter Bold otherwise. */
+@font-face {
+  font-family: "Styrene B";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    local("Styrene B Bold"),
+    local("Styrene B Display Bold"),
+    local("Styrene B");
+}
+
+/* Palette + theme tokens (single source of truth). */
+:root {
+  --color-coral: #d97757;
+  --color-cream: #f5f0e8;
+  --color-charcoal: #1a1a1a;
+  --color-sandy-beige: #e8d5c4;
+  --color-muted-brown: #8b6f5e;
+  --color-off-white: #f0ebe3;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --surface: var(--color-cream);
+  --panel: var(--color-off-white);
+  --border: var(--color-sandy-beige);
+  --text: var(--color-charcoal);
+  --muted: var(--color-muted-brown);
+  --accent: var(--color-coral);
+  --accent-soft: color-mix(in srgb, var(--color-coral) 14%, var(--color-cream));
+  --text-on-accent: var(--color-off-white);
+  --overlay-tint: color-mix(in srgb, var(--color-sandy-beige) 28%, var(--color-off-white));
+  --shadow-card: 0 1px 2px color-mix(in srgb, var(--color-charcoal) 8%, var(--color-cream));
+  --shadow-lift: 0 -4px 16px color-mix(in srgb, var(--color-charcoal) 6%, var(--color-sandy-beige));
+  --shimmer-stop: color-mix(in srgb, var(--color-sandy-beige) 55%, var(--color-off-white));
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: var(--color-charcoal);
+  --panel: color-mix(in srgb, var(--color-charcoal) 74%, var(--color-muted-brown));
+  --border: var(--color-muted-brown);
+  --text: var(--color-cream);
+  --muted: var(--color-sandy-beige);
+  --accent: var(--color-coral);
+  --accent-soft: color-mix(in srgb, var(--color-coral) 18%, var(--color-charcoal));
+  --text-on-accent: var(--color-off-white);
+  --overlay-tint: color-mix(in srgb, var(--color-muted-brown) 35%, var(--color-charcoal));
+  --shadow-card: 0 1px 3px color-mix(in srgb, var(--color-charcoal) 45%, var(--color-muted-brown));
+  --shadow-lift: 0 -4px 14px color-mix(in srgb, var(--color-charcoal) 65%, var(--color-muted-brown));
+  --shimmer-stop: color-mix(in srgb, var(--color-muted-brown) 55%, var(--color-charcoal));
+}
+
+/* Map theme variables onto Tailwind utilities (bg-surface, text-accent, font-heading, etc.) */
+@theme inline {
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-border-token: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--text-on-accent);
+  --color-overlay: var(--overlay-tint);
+
+  --color-coral: #d97757;
+  --color-cream: #f5f0e8;
+  --color-charcoal: #1a1a1a;
+  --color-sandy: #e8d5c4;
+  --color-brown: #8b6f5e;
+  --color-offwhite: #f0ebe3;
+
+  --font-heading: "Styrene B", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-body: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-body);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
+
+  --animate-fade-up: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fadeIn 0.35s ease-out both;
+  --animate-slide-down: slideDown 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-pop: pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-spin-slow: spin 1.2s ease-out;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 1000px;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.92);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+html,
+body {
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-body);
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Stagger helpers for entrance animations on lists/grids */
+.stagger > * {
+  animation: fadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger > *:nth-child(1) {
+  animation-delay: 0.02s;
+}
+.stagger > *:nth-child(2) {
+  animation-delay: 0.06s;
+}
+.stagger > *:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.stagger > *:nth-child(4) {
+  animation-delay: 0.14s;
+}
+.stagger > *:nth-child(5) {
+  animation-delay: 0.18s;
+}
+.stagger > *:nth-child(6) {
+  animation-delay: 0.22s;
+}
+.stagger > *:nth-child(7) {
+  animation-delay: 0.26s;
+}
+.stagger > *:nth-child(8) {
+  animation-delay: 0.3s;
+}
+.stagger > *:nth-child(9) {
+  animation-delay: 0.34s;
+}
+.stagger > *:nth-child(n + 10) {
+  animation-delay: 0.38s;
+}
+
+/* Shimmer skeleton block */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--panel) 0%,
+    var(--shimmer-stop) 50%,
+    var(--panel) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+  border-radius: 0.5rem;
+}
+
+/* Route fade transition (used on <Transition name="fade">) */
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}

@@ -1,0 +1,11 @@
+name = "mn-courses-api"
+main = "src/index.ts"
+compatibility_date = "2025-05-01"
+
+# Create a real database: pnpm exec wrangler d1 create mn-courses-db
+# Then paste database_id here for remote deploy / migrate.
+[[d1_databases]]
+binding = "DB"
+database_name = "mn-courses-db"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "drizzle/migrations"
