@@ -7,5 +7,5 @@ compatibility_date = "2025-05-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "mn-courses-db"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "cc21dea3-2e71-44fa-994e-bcdc6e7d2db6"
 migrations_dir = "drizzle/migrations"

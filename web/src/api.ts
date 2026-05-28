@@ -59,9 +59,9 @@ export function getCourses(filters?: {
   return fetchJson(`/api/courses${qs ? `?${qs}` : ""}`);
 }
 
-/** Primary catalog title — aligns with listing at claude.com/resources/courses */
+/** Primary catalog title — Mongolian-first; falls back to English. */
 export function courseDisplayTitle(c: Pick<CourseCatalogItem, "titleEn" | "titleMn">): string {
-  return c.titleEn?.trim() || c.titleMn;
+  return c.titleMn?.trim() || c.titleEn || "";
 }
 
 export function getCourse(slug: string): Promise<{
@@ -71,12 +71,38 @@ export function getCourse(slug: string): Promise<{
   return fetchJson(`/api/courses/${encodeURIComponent(slug)}`);
 }
 
+export type TaskKind =
+  | "quiz_single"
+  | "quiz_multi"
+  | "prompt_exercise"
+  | "reflection";
+
+export type TaskOption = { id: string; mn: string; en?: string };
+
+export type TaskPayload = {
+  options?: TaskOption[];
+  minChars?: number;
+  rubricMn?: string;
+};
+
+export type LessonTask = {
+  id: string;
+  slug: string;
+  kind: TaskKind;
+  promptMn: string;
+  promptEn: string | null;
+  xpReward: number;
+  sortOrder: number;
+  payload: TaskPayload;
+};
+
 export function getLesson(
   courseSlug: string,
   lessonSlug: string,
 ): Promise<{
   course: CourseCatalogItem;
   lesson: LessonListItem & { contentMd: string | null };
+  tasks: LessonTask[];
 }> {
   return fetchJson(
     `/api/courses/${encodeURIComponent(courseSlug)}/lessons/${encodeURIComponent(lessonSlug)}`,

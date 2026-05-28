@@ -8,10 +8,10 @@ const visible = computed(() => route.meta.showBottomNav === true);
 const tab = computed(() => route.meta.bottomTab as string | undefined);
 
 const items = [
-  { id: "home", label: "Home", to: "/", icon: "home" },
-  { id: "leaderboard", label: "Leaderboard", to: "/leaderboard", icon: "trophy" },
-  { id: "progress", label: "Progress", to: "/progress", icon: "chart" },
-  { id: "profile", label: "Profile", to: "/profile", icon: "user" },
+  { id: "home", label: "Нүүр", to: "/", icon: "home" },
+  { id: "leaderboard", label: "Тэргүүлэгчид", to: "/leaderboard", icon: "trophy" },
+  { id: "progress", label: "Ахиц", to: "/progress", icon: "chart" },
+  { id: "profile", label: "Профайл", to: "/profile", icon: "user" },
 ] as const;
 
 function isActive(id: string): boolean {

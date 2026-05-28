@@ -1,6 +1,6 @@
 /** Reactive client store for the Mongolian academy. Owns the auth-less user id,
  *  caches their state in-memory, and exposes mutations that round-trip to the worker. */
-import { computed, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
 import {
   completeAcademyItem,
   createAcademyUser,
@@ -9,9 +9,10 @@ import {
   type AcademyProfile,
   type AcademyServerStats,
   type AcademyUserPayload,
+  type AwardedBadge,
   type LeaderboardEntry,
 } from "./api";
-import { BADGES, COURSES, type DerivedStats } from "./data";
+import { submitTask as submitTaskApi, type TaskAnswer, type SubmitResult } from "./tasks";
 
 const USER_ID_KEY = "academy-user-id";
 
@@ -100,13 +101,37 @@ async function onboard(name: string): Promise<void> {
   }
 }
 
-function showToast(icon: string, text: string): void {
-  toast.value = { icon, text };
+const toastQueue: Array<{ icon: string; text: string }> = [];
+
+function pumpToast(): void {
+  if (toast.value || toastQueue.length === 0) return;
+  const next = toastQueue.shift()!;
+  toast.value = next;
   if (toastTimer) clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
     toast.value = null;
     toastTimer = null;
+    pumpToast();
   }, 2400);
+}
+
+function showToast(icon: string, text: string): void {
+  toastQueue.push({ icon, text });
+  pumpToast();
+}
+
+const BADGE_ICON: Record<string, string> = {
+  spark: "✨",
+  flame: "🔥",
+  star: "⭐",
+  crown: "👑",
+  sparkles: "🌟",
+};
+
+function queueBadgeToasts(newBadges: AwardedBadge[]): void {
+  for (const b of newBadges) {
+    showToast(BADGE_ICON[b.iconKey] ?? "🏅", `Шинэ шагнал — ${b.titleMn}`);
+  }
 }
 
 async function markComplete(
@@ -120,11 +145,37 @@ async function markComplete(
   if (existing) return;
 
   try {
-    const p = await completeAcademyItem(profile.value.id, courseId, itemKey, xp);
-    applyPayload(p);
-    showToast("✨", `+${xp} XP — ${label}`);
+    const { payload, newBadges } = await completeAcademyItem(
+      profile.value.id,
+      courseId,
+      itemKey,
+      xp,
+    );
+    applyPayload(payload);
+    if (xp > 0) showToast("✨", `+${xp} XP — ${label}`);
+    queueBadgeToasts(newBadges);
   } catch (e) {
     error.value = e instanceof Error ? e.message : "Хадгалж чадсангүй";
+  }
+}
+
+async function submitTask(
+  courseId: string,
+  taskId: string,
+  answer: TaskAnswer,
+): Promise<SubmitResult | null> {
+  if (!profile.value) return null;
+  try {
+    const result = await submitTaskApi(profile.value.id, taskId, courseId, answer);
+    if (result.payload) applyPayload(result.payload);
+    if (result.correct && result.xpAwarded > 0) {
+      showToast("✨", `+${result.xpAwarded} XP`);
+    }
+    queueBadgeToasts(result.newBadges);
+    return result;
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : "Илгээж чадсангүй";
+    return null;
   }
 }
 
@@ -137,35 +188,6 @@ async function refreshLeaderboard(): Promise<void> {
   }
 }
 
-const derivedStats = computed<DerivedStats>(() => {
-  let lessonsCompleted = 0;
-  let coursesCompleted = 0;
-  for (const course of COURSES) {
-    const cp = progress.value[course.id] ?? {};
-    const doneLessons = course.lessons.filter((l) => cp[`lesson:${l.id}`]).length;
-    const doneTasks = course.tasks.filter((t) => cp[`task:${t.id}`]).length;
-    lessonsCompleted += doneLessons;
-    if (
-      doneLessons === course.lessons.length &&
-      doneTasks === course.tasks.length
-    ) {
-      coursesCompleted += 1;
-    }
-  }
-  return {
-    totalXP: stats.totalXP,
-    currentStreak: stats.currentStreak,
-    longestStreak: stats.longestStreak,
-    lastActiveDate: stats.lastActiveDate,
-    lessonsCompleted,
-    coursesCompleted,
-  };
-});
-
-const earnedBadgeIds = computed<string[]>(() =>
-  BADGES.filter((b) => b.check(derivedStats.value)).map((b) => b.id),
-);
-
 export function useAcademy() {
   return {
     profile,
@@ -176,11 +198,10 @@ export function useAcademy() {
     error,
     leaderboard,
     toast,
-    derivedStats,
-    earnedBadgeIds,
     init,
     onboard,
     markComplete,
+    submitTask,
     refreshLeaderboard,
     showToast,
   };

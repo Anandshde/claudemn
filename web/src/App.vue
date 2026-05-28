@@ -2,6 +2,10 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { RouterLink, RouterView, useRoute } from "vue-router";
 import BottomNav from "@/components/BottomNav.vue";
+import AcademyToast from "@/components/AcademyToast.vue";
+import { useAcademy } from "@/academy/store";
+
+const academy = useAcademy();
 
 const THEME_KEY = "mn-courses-theme";
 
@@ -19,17 +23,19 @@ onMounted(() => {
   const dataset = document.documentElement.dataset.theme;
   if (dataset === "dark" || dataset === "light") {
     theme.value = dataset;
-    return;
-  }
-  try {
-    const stored = localStorage.getItem(THEME_KEY);
-    if (stored === "dark" || stored === "light") {
-      theme.value = stored;
-      applyTheme(stored);
+  } else {
+    try {
+      const stored = localStorage.getItem(THEME_KEY);
+      if (stored === "dark" || stored === "light") {
+        theme.value = stored;
+        applyTheme(stored);
+      }
+    } catch {
+      applyTheme(theme.value);
     }
-  } catch {
-    applyTheme(theme.value);
   }
+  // Bootstrap academy — pull existing profile from localStorage if any.
+  academy.init();
 });
 
 watch(theme, (mode) => {
@@ -62,12 +68,12 @@ const toggleLabel = computed(() =>
           to="/"
           class="text-sm font-semibold tracking-wide font-heading transition-colors hover:text-accent"
         >
-          Claude Courses
+          Claude хичээлүүд
         </RouterLink>
         <nav class="flex items-center gap-1 text-sm text-muted" aria-label="Breadcrumb">
-          <span>Resources</span>
+          <span>Эх сурвалж</span>
           <span class="opacity-50" aria-hidden="true">/</span>
-          <RouterLink to="/" class="font-semibold text-text">Courses</RouterLink>
+          <RouterLink to="/" class="font-semibold text-text">Хичээлүүд</RouterLink>
         </nav>
         <button
           type="button"
@@ -131,13 +137,15 @@ const toggleLabel = computed(() =>
 
     <BottomNav />
 
+    <AcademyToast />
+
     <footer
       v-if="!bottomNavPadding"
       class="border-t border-border-token bg-surface"
     >
       <p class="mx-auto max-w-6xl px-4 py-5 text-xs text-muted sm:px-6">
-        Layout inspired by public course listing at claude.com; data is stored locally with your
-        API.
+        Claude курсуудаас сэдэвлэсэн монгол хэлний боловсролын платформ. Контент нь оригинал
+        бичигдсэн, Anthropic-той албан ёсны харилцаагүй.
       </p>
     </footer>
   </div>

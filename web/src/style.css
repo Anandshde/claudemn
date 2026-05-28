@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Treat html[data-theme="dark"] as the source of the `dark:` variant. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -76,7 +77,7 @@
   --color-brown: #8b6f5e;
   --color-offwhite: #f0ebe3;
 
-  --font-heading: "Styrene B", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Fraunces", "Styrene B", "Source Serif 4", Georgia, ui-serif, serif;
   --font-body: Inter, ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-body);
 
@@ -160,6 +161,18 @@ body {
 
 a {
   color: inherit;
+}
+
+/* Lesson body — Fraunces opsz tuned for long-form reading */
+.lesson-prose {
+  font-variation-settings: "opsz" 14, "SOFT" 50;
+  font-feature-settings: "ss01", "liga";
+  max-width: 68ch;
+}
+
+/* h1/h2 in lesson body get a slightly bolder optical size */
+.lesson-prose :where(h1, h2, h3) {
+  font-variation-settings: "opsz" 64, "SOFT" 40;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -30,7 +30,7 @@ watch(slug, load);
         to="/"
         class="inline-flex items-center gap-1 text-sm text-muted transition-all duration-200 hover:-translate-x-0.5 hover:text-accent"
       >
-        ← All courses
+        ← Бүх хичээл
       </RouterLink>
     </p>
 
@@ -66,7 +66,7 @@ watch(slug, load);
             rel="noopener noreferrer"
             class="text-sm text-accent transition-opacity hover:opacity-80"
           >
-            Open on claude.com →
+            Claude.com дээр нээх →
           </a>
         </div>
         <p
@@ -79,7 +79,7 @@ watch(slug, load);
 
       <section class="mt-8">
         <h2 class="mb-3 font-heading text-base font-bold uppercase tracking-wider text-muted">
-          Lessons
+          Хичээлүүд
         </h2>
         <ol
           v-if="data.lessons.length"
@@ -96,10 +96,10 @@ watch(slug, load);
                 {{ i + 1 }}
               </span>
               <span class="flex-1 font-medium">
-                {{ l.titleEn ?? l.titleMn }}
+                {{ l.titleMn || l.titleEn }}
               </span>
               <span v-if="l.durationMin" class="text-xs text-muted">
-                {{ l.durationMin }} min
+                {{ l.durationMin }} мин
               </span>
               <svg
                 width="16"
@@ -120,11 +120,12 @@ watch(slug, load);
           </li>
         </ol>
         <p v-else class="max-w-xl text-sm text-muted">
-          Lesson outlines are not imported yet; this page mirrors the public catalog entry.
+          Энэ хичээлийн агуулга удахгүй нэмэгдэх болно. Тийм болохоор Anthropic-ийн албан ёсны
+          хуудсаар одоохондоо хандана уу.
         </p>
       </section>
     </template>
 
-    <p v-else-if="!error" class="text-sm text-muted">Loading…</p>
+    <p v-else-if="!error" class="text-sm text-muted">Ачаалж байна…</p>
   </div>
 </template>

@@ -47,10 +47,40 @@ export const coursesRelations = relations(courses, ({ many }) => ({
   lessons: many(lessons),
 }));
 
-export const lessonsRelations = relations(lessons, ({ one }) => ({
+export const lessonsRelations = relations(lessons, ({ one, many }) => ({
   course: one(courses, {
     fields: [lessons.courseId],
     references: [courses.id],
+  }),
+  tasks: many(tasks),
+}));
+
+/** Per-lesson interactive task. kind drives validator + payloadJson shape. */
+export const tasks = sqliteTable("tasks", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  lessonId: text("lesson_id")
+    .notNull()
+    .references(() => lessons.id, { onDelete: "cascade" }),
+  slug: text("slug").notNull(),
+  /** quiz_single | quiz_multi | prompt_exercise | reflection */
+  kind: text("kind").notNull(),
+  promptMn: text("prompt_mn").notNull(),
+  promptEn: text("prompt_en"),
+  /** JSON-encoded; shape depends on `kind`. Server strips correct answers before sending. */
+  payloadJson: text("payload_json").notNull(),
+  xpReward: integer("xp_reward").notNull().default(10),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`(datetime('now'))`),
+});
+
+export const tasksRelations = relations(tasks, ({ one }) => ({
+  lesson: one(lessons, {
+    fields: [tasks.lessonId],
+    references: [lessons.id],
   }),
 }));
 
@@ -105,5 +135,38 @@ export const academyDailyXp = sqliteTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.userId, t.date] }),
+  }),
+);
+
+/** Catalog of awardable badges. Seeded; immutable from app. */
+export const badges = sqliteTable("badges", {
+  slug: text("slug").primaryKey(),
+  titleMn: text("title_mn").notNull(),
+  titleEn: text("title_en"),
+  descriptionMn: text("description_mn").notNull(),
+  descriptionEn: text("description_en"),
+  iconKey: text("icon_key").notNull(),
+  /** first_lesson | first_course | streak_n | xp_n | course_complete */
+  criteriaKind: text("criteria_kind").notNull(),
+  criteriaValue: integer("criteria_value"),
+  /** For course_complete: the course slug that triggers it. */
+  criteriaSlug: text("criteria_slug"),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+/** Awards granted to a user. */
+export const userBadges = sqliteTable(
+  "user_badges",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => academyUsers.id, { onDelete: "cascade" }),
+    badgeSlug: text("badge_slug")
+      .notNull()
+      .references(() => badges.slug, { onDelete: "cascade" }),
+    awardedAt: text("awarded_at").notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.userId, t.badgeSlug] }),
   }),
 );

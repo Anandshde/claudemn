@@ -3,6 +3,8 @@ import { onMounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 import { courseDisplayTitle, getCourses, type CourseCatalogItem } from "@/api";
 
+const READY_SLUGS = new Set<string>(["claude-101"]);
+
 const PRODUCT_OPTIONS = [
   "AI Fluency",
   "Claude.ai",
@@ -116,16 +118,16 @@ watch(searchDraft, () => {
     <!-- Hero -->
     <section class="mb-8 max-w-2xl animate-[fadeUp_0.5s_cubic-bezier(0.22,1,0.36,1)_both]">
       <p class="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-muted">
-        Explore here
+        Судал
       </p>
       <h1
         class="mb-3 font-heading text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl"
       >
-        Go deeper with Anthropic courses
+        Claude хичээлүүд — Монголоор
       </h1>
       <p class="text-base leading-relaxed text-muted sm:text-lg">
-        Structured learning paths with video lessons and assessments to help you master AI
-        collaboration, Claude development, and MCP.
+        Сайн prompt бичих, Claude-тэй үр дүнтэй ажиллах, MCP ба API-аар бүтээх — суурь мэдлэгээс
+        дэвшилтэт түвшин хүртэлх замчилгаа.
       </p>
     </section>
 
@@ -156,11 +158,11 @@ watch(searchDraft, () => {
               stroke-linecap="round"
             />
           </svg>
-          Filter
+          Шүүлт
         </button>
 
         <label class="relative min-w-48 flex-1">
-          <span class="sr-only">Search courses</span>
+          <span class="sr-only">Хичээл хайх</span>
           <span
             class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
             aria-hidden="true"
@@ -178,7 +180,7 @@ watch(searchDraft, () => {
             v-model="searchDraft"
             type="search"
             autocomplete="off"
-            placeholder="Search courses"
+            placeholder="Хичээл хайх"
             class="w-full rounded-full border border-border-token bg-panel py-2.5 pl-10 pr-4 text-sm shadow-sm outline-none transition-all duration-200 placeholder:text-muted focus:border-accent focus:shadow-md focus:ring-2 focus:ring-accent/30"
           />
         </label>
@@ -234,7 +236,7 @@ watch(searchDraft, () => {
         >
           <div class="grid gap-5 sm:grid-cols-2">
             <fieldset class="border-0 p-0">
-              <legend class="mb-2.5 text-sm font-semibold">Product</legend>
+              <legend class="mb-2.5 text-sm font-semibold">Бүтээгдэхүүн</legend>
               <div class="space-y-1.5">
                 <label
                   v-for="p in PRODUCT_OPTIONS"
@@ -252,7 +254,7 @@ watch(searchDraft, () => {
               </div>
             </fieldset>
             <fieldset class="border-0 p-0">
-              <legend class="mb-2.5 text-sm font-semibold">Category</legend>
+              <legend class="mb-2.5 text-sm font-semibold">Ангилал</legend>
               <div class="space-y-1.5">
                 <label
                   v-for="c in CATEGORY_OPTIONS"
@@ -276,14 +278,14 @@ watch(searchDraft, () => {
               class="rounded-full border border-border-token bg-transparent px-4 py-2 text-sm font-medium transition-all duration-200 hover:border-accent hover:text-accent"
               @click="resetFilters"
             >
-              Reset
+              Цэвэрлэх
             </button>
             <button
               type="button"
               class="rounded-full bg-accent px-4 py-2 text-sm font-medium text-on-accent shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
               @click="applyFilters"
             >
-              Apply
+              Хэрэглэх
             </button>
           </div>
         </div>
@@ -334,14 +336,14 @@ watch(searchDraft, () => {
       aria-live="polite"
       class="rounded-2xl border border-dashed border-border-token bg-panel px-4 py-12 text-center animate-[fadeUp_0.4s_ease-out]"
     >
-      <h2 class="mb-2 font-heading text-2xl font-bold">No posts for those filters</h2>
-      <p class="mb-4 text-muted">Try another search or clear some of your filters.</p>
+      <h2 class="mb-2 font-heading text-2xl font-bold">Тохирох хичээл олдсонгүй</h2>
+      <p class="mb-4 text-muted">Өөр түлхүүр үг туршаад үзнэ үү эсвэл шүүлтээ цэвэрлэнэ үү.</p>
       <button
         type="button"
         class="rounded-full border border-border-token bg-panel px-4 py-2 text-sm font-medium transition-all duration-200 hover:border-accent hover:text-accent"
         @click="resetFilters"
       >
-        Clear all filters
+        Шүүлтийг цэвэрлэх
       </button>
     </div>
 
@@ -359,13 +361,32 @@ watch(searchDraft, () => {
         class="group flex flex-col overflow-hidden rounded-2xl border border-border-token bg-panel shadow-[var(--shadow-card)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-accent/40 hover:shadow-lg"
       >
         <div class="flex-1 px-5 pb-3 pt-5">
+          <div class="mb-2 flex items-center gap-2">
+            <span
+              v-if="READY_SLUGS.has(c.slug)"
+              class="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-on-accent"
+              title="Энэ хичээл бүрэн орчуулагдсан"
+            >
+              ✓ Бэлэн
+            </span>
+            <span
+              v-else
+              class="inline-flex items-center rounded-full border border-border-token bg-surface px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted"
+            >
+              Удахгүй
+            </span>
+          </div>
+
           <h2
             class="font-heading text-xl font-bold leading-tight tracking-tight transition-colors group-hover:text-accent"
           >
             {{ courseDisplayTitle(c) }}
           </h2>
-          <p class="mt-0.5 text-sm font-medium leading-snug text-muted">
-            {{ courseDisplayTitle(c) }}
+          <p
+            v-if="c.summaryMn"
+            class="mt-1 text-sm leading-snug text-muted"
+          >
+            {{ c.summaryMn }}
           </p>
 
           <div class="mt-5 space-y-4">
@@ -374,7 +395,7 @@ watch(searchDraft, () => {
                 {{ formatOptionalCount(c.lecturesCount) }}
               </p>
               <p class="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted">
-                Lectures
+                Лекц
               </p>
             </div>
             <div>
@@ -382,7 +403,7 @@ watch(searchDraft, () => {
                 {{ c.videoLength ?? "—" }}
               </p>
               <p class="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted">
-                of video
+                Бичлэг
               </p>
             </div>
             <div>
@@ -390,7 +411,7 @@ watch(searchDraft, () => {
                 {{ formatQuizParts(c.quizzesCount).count }}
               </p>
               <p class="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted">
-                {{ formatQuizParts(c.quizzesCount).label }}
+                Шалгалт
               </p>
             </div>
           </div>
@@ -413,7 +434,7 @@ watch(searchDraft, () => {
             :to="`/courses/${c.slug}`"
             class="block w-full rounded-lg bg-accent px-4 py-2.5 text-center text-sm font-medium text-on-accent shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-md active:translate-y-0"
           >
-            View course
+            Хичээл үзэх
           </RouterLink>
           <a
             v-if="c.externalUrl"
@@ -422,7 +443,7 @@ watch(searchDraft, () => {
             rel="noopener noreferrer"
             class="mt-2.5 block text-xs text-muted transition-colors hover:text-accent"
           >
-            Open on claude.com →
+            Claude.com дээр нээх →
           </a>
         </div>
       </article>
@@ -437,12 +458,12 @@ watch(searchDraft, () => {
       <table class="w-full min-w-[44rem] border-collapse text-sm">
         <thead>
           <tr class="border-b border-border-token text-[0.7rem] uppercase tracking-wider text-muted">
-            <th class="px-4 py-3 text-left font-semibold">Product</th>
-            <th class="px-4 py-3 text-left font-semibold">Category</th>
-            <th class="px-4 py-3 text-left font-semibold">Course</th>
-            <th class="px-4 py-3 text-left font-semibold">Lectures</th>
-            <th class="px-4 py-3 text-left font-semibold">Video</th>
-            <th class="px-4 py-3 text-left font-semibold">Assessment</th>
+            <th class="px-4 py-3 text-left font-semibold">Бүтээгдэхүүн</th>
+            <th class="px-4 py-3 text-left font-semibold">Ангилал</th>
+            <th class="px-4 py-3 text-left font-semibold">Хичээл</th>
+            <th class="px-4 py-3 text-left font-semibold">Лекц</th>
+            <th class="px-4 py-3 text-left font-semibold">Бичлэг</th>
+            <th class="px-4 py-3 text-left font-semibold">Шалгалт</th>
             <th class="px-4 py-3" />
           </tr>
         </thead>
@@ -455,31 +476,37 @@ watch(searchDraft, () => {
             <td class="px-4 py-3">{{ c.product }}</td>
             <td class="px-4 py-3">{{ c.category }}</td>
             <td class="max-w-[14rem] px-4 py-3">
-              <div class="font-semibold leading-tight">{{ courseDisplayTitle(c) }}</div>
-              <div class="mt-1 text-xs font-normal leading-snug text-muted">
-                {{ courseDisplayTitle(c) }}
+              <div class="flex items-center gap-2">
+                <span class="font-semibold leading-tight">{{ courseDisplayTitle(c) }}</span>
+                <span
+                  v-if="READY_SLUGS.has(c.slug)"
+                  class="rounded-full bg-accent px-1.5 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-on-accent"
+                >
+                  Бэлэн
+                </span>
+              </div>
+              <div v-if="c.summaryMn" class="mt-1 text-xs font-normal leading-snug text-muted">
+                {{ c.summaryMn }}
               </div>
             </td>
             <td class="px-4 py-3 align-top tabular-nums">
               <span class="font-semibold">{{ c.lecturesCount ?? "—" }}</span>
-              <div class="text-[0.65rem] uppercase tracking-wider text-muted">Lectures</div>
+              <div class="text-[0.65rem] uppercase tracking-wider text-muted">Лекц</div>
             </td>
             <td class="px-4 py-3 align-top tabular-nums">
               <span class="font-semibold">{{ c.videoLength ?? "—" }}</span>
-              <div class="text-[0.65rem] uppercase tracking-wider text-muted">of video</div>
+              <div class="text-[0.65rem] uppercase tracking-wider text-muted">Бичлэг</div>
             </td>
             <td class="px-4 py-3 align-top tabular-nums">
               <span class="font-semibold">{{ formatQuizParts(c.quizzesCount).count }}</span>
-              <div class="text-[0.65rem] uppercase tracking-wider text-muted">
-                {{ formatQuizParts(c.quizzesCount).label }}
-              </div>
+              <div class="text-[0.65rem] uppercase tracking-wider text-muted">Шалгалт</div>
             </td>
             <td class="px-4 py-3">
               <RouterLink
                 :to="`/courses/${c.slug}`"
                 class="font-medium text-accent transition-colors hover:underline"
               >
-                View course →
+                Үзэх →
               </RouterLink>
             </td>
           </tr>
@@ -491,14 +518,19 @@ watch(searchDraft, () => {
     <section
       class="mt-12 rounded-2xl border border-border-token bg-accent-soft px-5 py-10 text-center animate-[fadeUp_0.5s_ease-out]"
     >
-      <h2 class="mb-5 font-heading text-2xl font-bold sm:text-3xl">
-        Ready to prove your expertise?
+      <h2 class="mb-3 font-heading text-2xl font-bold sm:text-3xl">
+        Чадвараа батлахад бэлэн үү?
       </h2>
+      <p class="mb-5 text-sm text-muted">
+        Anthropic-ийн албан ёсны сертификатын мэдээллийг доороос үзнэ үү.
+      </p>
       <a
         href="https://claude.com/resources/certifications"
+        target="_blank"
+        rel="noopener noreferrer"
         class="inline-block rounded-full bg-accent px-6 py-3 text-base font-medium text-on-accent shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-md active:translate-y-0"
       >
-        Get certified
+        Сертификат авах
       </a>
     </section>
   </div>

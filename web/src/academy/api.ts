@@ -61,12 +61,19 @@ export function fetchAcademyUser(id: string): Promise<AcademyUserPayload> {
   return request(`/api/academy/users/${encodeURIComponent(id)}`);
 }
 
+export type AwardedBadge = {
+  slug: string;
+  titleMn: string;
+  descriptionMn: string;
+  iconKey: string;
+};
+
 export function completeAcademyItem(
   userId: string,
   courseId: string,
   itemKey: string,
   xp: number,
-): Promise<AcademyUserPayload> {
+): Promise<{ payload: AcademyUserPayload; newBadges: AwardedBadge[] }> {
   return request(`/api/academy/users/${encodeURIComponent(userId)}/complete`, {
     method: "POST",
     body: JSON.stringify({ courseId, itemKey, xp }),
